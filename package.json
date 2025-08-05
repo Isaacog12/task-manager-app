@@ -1,0 +1,13 @@
+{
+  "name": "task-manager-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm install && npx prisma migrate dev --name init && npm start",
+    "client": "cd frontend && npm install && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}

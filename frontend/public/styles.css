@@ -1,0 +1,81 @@
+/* styles.css */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #191970; /* Midnight Blue */
+  color: #fff;
+}
+
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #1c1c3c;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #ffffff;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input, select {
+  background: #2f2f6f;
+  color: white;
+}
+
+input::placeholder {
+  color: #cccccc;
+}
+
+button {
+  background: #4169e1; /* Royal Blue */
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #27408b; /* Darker Royal Blue */
+}
+
+ul#taskList {
+  list-style: none;
+  padding: 0;
+}
+
+.task {
+  background: #28285a;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+}
+
+.task button {
+  margin-top: 10px;
+  margin-right: 10px;
+  font-size: 0.9rem;
+  background: #4682b4;
+}
+
+.task button:hover {
+  background: #5f9ea0;
+}

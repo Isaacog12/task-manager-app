@@ -1,81 +1,163 @@
-/* styles.css */
+/* Custom Variables */
+:root {
+  --primary: #3b82f6;
+  --accent: #8b5cf6;
+  --bg-dark: #030712;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-main: #f9fafb;
+  --text-dim: #9ca3af;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #191970; /* Midnight Blue */
-  color: #fff;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  /* Professional Dark Tech Background */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0, transparent 50%), 
+    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0, transparent 50%),
+    url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+  background-attachment: fixed;
+  background-size: cover;
+  color: var(--text-main);
+  min-height: 100vh;
 }
 
 .container {
-  max-width: 700px;
-  margin: 40px auto;
-  background: #1c1c3c;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  max-width: 800px;
+  margin: 60px auto;
+  /* Glassmorphism Effect */
+  background: rgba(3, 7, 18, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  padding: 40px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 25px;
-  color: #ffffff;
+  font-weight: 800;
+  font-size: 2.5rem;
+  letter-spacing: -0.05em;
+  margin-bottom: 30px;
+  background: linear-gradient(to right, #fff, var(--text-dim));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Form Styling */
 form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--border);
 }
 
 input, select, button {
-  padding: 10px 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 input, select {
-  background: #2f2f6f;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
   color: white;
+  outline: none;
 }
 
-input::placeholder {
-  color: #cccccc;
+input:focus, select:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
-button {
-  background: #4169e1; /* Royal Blue */
-  color: white;
+/* Full width for certain inputs */
+input#title, input#description {
+  grid-column: span 2;
+}
+
+button[type="submit"] {
+  grid-column: span 2;
+  background: #fff;
+  color: #000;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s;
+  margin-top: 10px;
 }
 
-button:hover {
-  background: #27408b; /* Darker Royal Blue */
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
 }
 
-ul#taskList {
-  list-style: none;
-  padding: 0;
+/* Task Cards */
+#task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .task {
-  background: #28285a;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 16px;
+  transition: all 0.3s;
+  animation: fadeIn 0.5s ease-out;
 }
 
-.task button {
-  margin-top: 10px;
-  margin-right: 10px;
-  font-size: 0.9rem;
-  background: #4682b4;
+.task:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.01);
 }
 
-.task button:hover {
-  background: #5f9ea0;
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.task strong {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.task p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+/* Action Buttons within Tasks */
+.task-actions button {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  margin-right: 8px;
+}
+
+.task-actions button:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

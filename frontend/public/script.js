@@ -1,104 +1,122 @@
 const API_URL = 'http://localhost:5000/api/tasks';
 
-const form = document.getElementById('task-form');
-const titleInput = document.getElementById('title');
-const descriptionInput = document.getElementById('description');
-const priorityInput = document.getElementById('priority');
-const dueDateInput = document.getElementById('dueDate');
-const taskList = document.getElementById('task-list');
+// Cache elements
+const elements = {
+  form: document.getElementById('task-form'),
+  title: document.getElementById('title'),
+  desc: document.getElementById('description'),
+  priority: document.getElementById('priority'),
+  date: document.getElementById('dueDate'),
+  list: document.getElementById('task-list'),
+  submitBtn: document.querySelector('#task-form button')
+};
 
 let editingId = null;
 
+// Helper: Standard Fetch Wrapper
+const apiRequest = async (url, method = 'GET', body = null) => {
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) options.body = JSON.stringify(body);
+  
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error("API Error:", e);
+  }
+};
+
 const loadTasks = async () => {
-  const res = await fetch(API_URL);
-  const tasks = await res.json();
-  renderTasks(tasks);
+  const tasks = await apiRequest(API_URL);
+  if (tasks) renderTasks(tasks);
 };
 
 const renderTasks = (tasks) => {
-  taskList.innerHTML = '';
+  elements.list.innerHTML = '';
   tasks.forEach(task => {
+    const isCompleted = task.status === 'completed';
     const li = document.createElement('li');
+    li.className = `task-item ${isCompleted ? 'opacity-60' : ''}`;
+    
     li.innerHTML = `
-      <div class="task-header">
-        <strong>${task.title}</strong>
-        <div class="task-actions">
-          <button onclick="editTask(${task.id})">Edit</button>
-          <button onclick="deleteTask(${task.id})">Delete</button>
-          <button onclick="toggleStatus(${task.id}, '${task.status}')">
-            Mark as ${task.status === 'completed' ? 'Pending' : 'Completed'}
-          </button>
+      <div class="task-content">
+        <span class="badge ${task.priority}">${task.priority}</span>
+        <h4 style="${isCompleted ? 'text-decoration: line-through' : ''}">${task.title}</h4>
+        <p>${task.description}</p>
+        <div class="task-meta">
+          <span><i data-lucide="calendar"></i> ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}</span>
+          <span>• ${task.status}</span>
         </div>
       </div>
-      <p>${task.description}</p>
-      <small>Priority: ${task.priority}</small><br/>
-      <small>Status: ${task.status}</small><br/>
-      <small>Due: ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}</small>
+      <div class="task-actions">
+        <button class="btn-icon" onclick="toggleStatus(${task.id}, '${task.status}')" title="Toggle Status">
+          <i data-lucide="${isCompleted ? 'rotate-ccw' : 'check'}"></i>
+        </button>
+        <button class="btn-icon" onclick="editTask(${task.id})" title="Edit">
+          <i data-lucide="edit-3"></i>
+        </button>
+        <button class="btn-icon text-red-500" onclick="deleteTask(${task.id})" title="Delete">
+          <i data-lucide="trash-2"></i>
+        </button>
+      </div>
     `;
-    taskList.appendChild(li);
+    elements.list.appendChild(li);
   });
+  if (window.lucide) lucide.createIcons();
 };
 
-form.addEventListener('submit', async (e) => {
+elements.form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const newTask = {
-    title: titleInput.value,
-    description: descriptionInput.value,
-    priority: priorityInput.value,
-    dueDate: dueDateInput.value || null
+  const taskData = {
+    title: elements.title.value,
+    description: elements.desc.value,
+    priority: elements.priority.value,
+    dueDate: elements.date.value || null
   };
 
   if (editingId) {
-    await fetch(`${API_URL}/${editingId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...newTask, status: 'pending' })
-    });
+    await apiRequest(`${API_URL}/${editingId}`, 'PUT', { ...taskData, status: 'pending' });
     editingId = null;
+    elements.submitBtn.textContent = 'Add Task';
   } else {
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newTask)
-    });
+    await apiRequest(API_URL, 'POST', taskData);
   }
 
-  form.reset();
+  elements.form.reset();
   loadTasks();
 });
 
 window.editTask = async (id) => {
-  const res = await fetch(`${API_URL}`);
-  const tasks = await res.json();
-  const task = tasks.find(t => t.id === id);
+  // Better: Fetch just the single task
+  const task = await apiRequest(`${API_URL}/${id}`);
   if (!task) return;
 
-  titleInput.value = task.title;
-  descriptionInput.value = task.description;
-  priorityInput.value = task.priority;
-  dueDateInput.value = task.dueDate ? task.dueDate.split('T')[0] : '';
+  elements.title.value = task.title;
+  elements.desc.value = task.description;
+  elements.priority.value = task.priority;
+  elements.date.value = task.dueDate ? task.dueDate.split('T')[0] : '';
+  
   editingId = task.id;
+  elements.submitBtn.textContent = 'Update Task';
+  elements.title.focus();
 };
 
 window.deleteTask = async (id) => {
-  await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-  loadTasks();
+  if (confirm('Delete this task?')) {
+    await apiRequest(`${API_URL}/${id}`, 'DELETE');
+    loadTasks();
+  }
 };
 
 window.toggleStatus = async (id, currentStatus) => {
   const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
-  const res = await fetch(`${API_URL}`);
-  const tasks = await res.json();
-  const task = tasks.find(t => t.id === id);
-  if (!task) return;
-
-  await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...task, status: newStatus })
-  });
-
+  // Optimization: Send a PATCH or PUT with only the status change
+  await apiRequest(`${API_URL}/${id}`, 'PUT', { status: newStatus });
   loadTasks();
 };
 

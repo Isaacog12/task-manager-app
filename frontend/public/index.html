@@ -1,117 +1,58 @@
-"use client";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pulse Task Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="glow-bg"></div>
+  
+  <main class="container">
+    <header>
+      <div class="logo">
+        <i data-lucide="rocket"></i>
+        <h1>Pulse<span>Task</span></h1>
+      </div>
+      <p>Organize your university workflow with precision.</p>
+    </header>
 
-import React, { useState } from "react";
-import { Plus, Calendar, Flag, Trash2, CheckCircle2, Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-// Types for our Task
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  priority: "low" | "medium" | "high";
-  dueDate: string;
-  status: "todo" | "doing" | "done";
-};
-
-const TaskManager = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [showForm, setShowForm] = useState(false);
-
-  // Quick Priority Color Map
-  const priorityColors = {
-    low: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-    medium: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-    high: "text-rose-400 bg-rose-400/10 border-rose-400/20",
-  };
-
-  return (
-    <div className="min-h-screen bg-[#030712] text-white p-6 md:p-12">
-      <div className="max-w-7xl mx-auto">
+    <section class="task-input-card">
+      <form id="task-form">
+        <div class="input-group">
+          <input type="text" id="title" placeholder="What needs to be done?" required />
+          <input type="text" id="description" placeholder="Add details..." required />
+        </div>
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tighter">Task <span className="italic font-serif text-zinc-500">Workspace</span></h1>
-            <p className="text-zinc-500 mt-1">Manage your sprint and track productivity.</p>
+        <div class="meta-group">
+          <div class="select-wrapper">
+            <i data-lucide="flag"></i>
+            <select id="priority">
+              <option value="low">Low Priority</option>
+              <option value="medium" selected>Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
           </div>
-          <Button 
-            onClick={() => setShowForm(true)}
-            className="rounded-full bg-primary hover:bg-primary/90 px-6 gap-2"
-          >
-            <Plus size={18} /> New Task
-          </Button>
+          <input type="date" id="dueDate" />
+          <button type="submit" id="add-btn">
+            <i data-lucide="plus"></i> Add Task
+          </button>
         </div>
+      </form>
+    </section>
 
-        {/* Kanban Board Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* TO DO COLUMN */}
-          <Column title="To Do" icon={<Clock size={18} />} count={tasks.filter(t => t.status === 'todo').length}>
-            {tasks.filter(t => t.status === 'todo').map(task => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </Column>
-
-          {/* DOING COLUMN */}
-          <Column title="In Progress" icon={<Rocket size={18} className="text-blue-400" />} count={tasks.filter(t => t.status === 'doing').length}>
-            {/* Map tasks here */}
-          </Column>
-
-          {/* DONE COLUMN */}
-          <Column title="Completed" icon={<CheckCircle2 size={18} className="text-emerald-400" />} count={tasks.filter(t => t.status === 'done').length}>
-            {/* Map tasks here */}
-          </Column>
-
-        </div>
-      </div>
+    <div class="stats-bar">
+      <div class="stat">Total: <span id="total-count">0</span></div>
+      <div class="stat">Done: <span id="done-count">0</span></div>
     </div>
-  );
-};
 
-// --- Subcomponents ---
+    <ul id="task-list" class="task-grid">
+      </ul>
+  </main>
 
-const Column = ({ title, icon, count, children }: any) => (
-  <div className="flex flex-col gap-4">
-    <div className="flex items-center justify-between px-2 mb-2">
-      <div className="flex items-center gap-2">
-        {icon}
-        <h2 className="font-bold tracking-tight text-zinc-300 uppercase text-xs">{title}</h2>
-      </div>
-      <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-zinc-500 border border-white/5">{count}</span>
-    </div>
-    <div className="flex flex-col gap-3 min-h-[500px] p-2 rounded-3xl border border-dashed border-white/5 bg-white/[0.01]">
-      {children}
-    </div>
-  </div>
-);
-
-const TaskCard = ({ task }: { task: Task }) => (
-  <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md group hover:border-primary/50 transition-all cursor-grab active:cursor-grabbing">
-    <CardContent className="p-5">
-      <div className="flex justify-between items-start mb-3">
-        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${priorityColors[task.priority]}`}>
-          {task.priority}
-        </span>
-        <button className="text-zinc-600 hover:text-rose-500 transition-colors">
-          <Trash2 size={14} />
-        </button>
-      </div>
-      <h4 className="font-bold text-zinc-200 mb-2">{task.title}</h4>
-      <p className="text-xs text-zinc-500 line-clamp-2 mb-4 leading-relaxed">{task.description}</p>
-      
-      <div className="flex items-center justify-between pt-4 border-t border-white/5">
-        <div className="flex items-center gap-1.5 text-zinc-500">
-          <Calendar size={12} />
-          <span className="text-[10px]">{task.dueDate || "No Date"}</span>
-        </div>
-        <div className="flex -space-x-2">
-           <div className="w-6 h-6 rounded-full border border-zinc-900 bg-primary/20 flex items-center justify-center text-[8px] font-bold">OI</div>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-export default TaskManager;
+  <script src="script.js"></script>
+</body>
+</html>
